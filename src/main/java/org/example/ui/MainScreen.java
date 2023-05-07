@@ -55,7 +55,9 @@ public class MainScreen extends JFrame {
 
         newGameButton.setBackground(Color.GREEN);
         newGameButton.addActionListener(e -> {
-
+            setVisible(false);
+            GameScreen gameScreen = new GameScreen();
+            gameScreen.start();
         });
         return newGameButton;
     }
