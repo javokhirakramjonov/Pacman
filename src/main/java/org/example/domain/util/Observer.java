@@ -1,4 +1,4 @@
-package org.example.domain.model;
+package org.example.domain.util;
 
 public interface Observer<T> {
     void observe(T data);
