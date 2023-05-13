@@ -1,10 +1,7 @@
 package org.example.controller;
 
-import org.example.domain.model.CellModel;
 import org.example.domain.model.Repository;
 import org.example.ui.GameScreen;
-
-import java.awt.*;
 
 public class GameScreenController {
 
