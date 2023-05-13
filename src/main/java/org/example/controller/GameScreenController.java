@@ -2,11 +2,20 @@ package org.example.controller;
 
 import org.example.domain.model.Repository;
 import org.example.ui.GameScreen;
+import org.example.ui.MainScreen;
+import org.example.ui.MyBoardRenderer;
+import org.example.ui.MyBoardTable;
 
-public class GameScreenController {
+import javax.swing.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+
+public class GameScreenController extends KeyAdapter implements KeyListener {
 
     private final Repository repository;
     private final GameScreen gameScreen;
+    private final MyBoardTable boardTable;
 
     public GameScreenController(
             GameScreen mainScreen,
@@ -15,11 +24,26 @@ public class GameScreenController {
     ) {
         this.gameScreen = mainScreen;
         this.repository = new Repository(columns, rows);
+
+        boardTable = new MyBoardTable(repository);
+        JTable table = new JTable(boardTable);
+        table.setDefaultRenderer(Object.class, new MyBoardRenderer(repository.getCellSize()));
+        table.setRowHeight(repository.getCellSize());
+        gameScreen.setBoard(table);
+
+        gameScreen.setSize(repository.getDimension());
+        gameScreen.addKeyListener(GameScreenController.this);
     }
 
     public void start() {
-        gameScreen.setSize(repository.getDimension());
-        gameScreen.drawBoard(repository.getCellSize(), repository.getBoard());
+        repository.start();
     }
 
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if (e.isControlDown() && e.isShiftDown() && e.getKeyCode() == KeyEvent.VK_Q) {
+            gameScreen.setVisible(false);
+            new MainScreen().start();
+        }
+    }
 }

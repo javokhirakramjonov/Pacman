@@ -1,18 +1,20 @@
 package org.example.domain.model;
 
 import org.example.domain.util.Direction;
+import org.example.domain.util.Move;
 
 import javax.swing.*;
 import java.awt.*;
 
-public abstract class ActorModel {
+public abstract class ActorModel implements Move {
 
     private final int cellSize;
     private Point position;
     private int speed;
     private Direction direction;
     private boolean isLive;
-    private volatile JPanel image;
+    private JComponent image;
+
     public ActorModel(int size) {
         this.cellSize = size;
     }
@@ -53,11 +55,31 @@ public abstract class ActorModel {
         isLive = live;
     }
 
-    public JPanel getImage() {
+    public JComponent getImage() {
         return image;
     }
 
-    public void setImage(JPanel image) {
+    public void setImage(JComponent image) {
         this.image = image;
+    }
+
+    @Override
+    public void goUp() {
+        position.x--;
+    }
+
+    @Override
+    public void goRight() {
+        position.y++;
+    }
+
+    @Override
+    public void goDown() {
+        position.x++;
+    }
+
+    @Override
+    public void goLeft() {
+        position.y--;
     }
 }
