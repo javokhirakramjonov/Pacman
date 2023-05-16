@@ -1,14 +1,18 @@
 package org.example.domain.model;
 
 import org.example.domain.util.Direction;
+import org.example.domain.util.GameStateListener;
+import org.example.domain.util.PositionListener;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.util.List;
 import java.util.*;
 import java.util.stream.IntStream;
 
 public class Repository {
 
+    private final int GHOST_SPEED_MS = 300;
     private final int columns;
     private final int rows;
     private final List<CellModel>[][] board;
@@ -17,13 +21,17 @@ public class Repository {
     private final int MAX_GHOSTS_COUNT;
 
     private final PacmanModel pacman;
-
-    private final List<GhostModel> ghosts;
     private final int[] directionX = {-1, 0, 1, 0};
     private final int[] directionY = {0, 1, 0, -1};
     private final int ghostsCount;
     private final Map<Direction, Integer> nextPos = new HashMap<>();
+    private final Map<Integer, Direction> nextPosKeyboard = new HashMap<>();
+    private final List<GhostModel> ghosts;
     private boolean isPlaying;
+
+    private PositionListener positionListener;
+
+    private GameStateListener gameStateListener;
 
     public Repository(int columns, int rows) {
         this.columns = columns;
@@ -38,6 +46,10 @@ public class Repository {
         nextPos.put(Direction.RIGHT, 1);
         nextPos.put(Direction.DOWN, 2);
         nextPos.put(Direction.LEFT, 3);
+        nextPosKeyboard.put(KeyEvent.VK_UP, Direction.UP);
+        nextPosKeyboard.put(KeyEvent.VK_RIGHT, Direction.RIGHT);
+        nextPosKeyboard.put(KeyEvent.VK_DOWN, Direction.DOWN);
+        nextPosKeyboard.put(KeyEvent.VK_LEFT, Direction.LEFT);
 
         board = new List[rows][columns];
         for (int i = 0; i < rows; ++i) {
@@ -49,6 +61,15 @@ public class Repository {
         addFoods();
         addBorders();
         createGhosts();
+        createPacman();
+    }
+
+    public void setGameStateListener(GameStateListener gameStateListener) {
+        this.gameStateListener = gameStateListener;
+    }
+
+    public void setPositionListener(PositionListener positionListener) {
+        this.positionListener = positionListener;
     }
 
     public List<CellModel>[][] getBoard() {
@@ -61,6 +82,11 @@ public class Repository {
 
     public Dimension getDimension() {
         return new Dimension(columns * CELL_SIZE, rows * CELL_SIZE);
+    }
+
+    private void createPacman() {
+        pacman.setDirection(Direction.RIGHT);
+        pacman.setPosition(new Point(rows / 2, 0));
     }
 
     private void createGhosts() {
@@ -228,49 +254,105 @@ public class Repository {
         actGhosts();
     }
 
-    public void stop() {
-        isPlaying = false;
-    }
-
     private void actGhosts() {
         new Thread(() -> {
             while (true) {
                 try {
-                    Thread.sleep(400);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    Thread.sleep(GHOST_SPEED_MS);
+                } catch (InterruptedException exception) {
+                    exception.printStackTrace();
                 }
                 if (isPlaying) {
-                    ghosts.forEach(ghost -> {
-                        int x = ghost.getPosition().x;
-                        int y = ghost.getPosition().y;
-                        moveFreeDirection(ghost, x, y);
-                    });
+                    ghosts.forEach(Repository.this::moveFreeDirection);
                 }
             }
         }).start();
     }
 
-    private void moveFreeDirection(ActorModel actor, int x, int y) {
+    private void moveFreeDirection(GhostModel ghost) {
 
-        int next = nextPos.get(actor.getDirection());
-        int newX = x + directionX[next];
-        int newY = y + directionY[next];
+        int x = ghost.getPosition().x;
+        int y = ghost.getPosition().y;
 
-        if (new Random().nextBoolean() || !(0 <= newX && newX < rows && 0 <= newY && newY < columns && !board[newX][newY].contains(CellModel.BLOCK))) {
-            List<Direction> directions = new LinkedList<>();
-            if (x > 0 && !board[x - 1][y].contains(CellModel.BLOCK))
-                directions.add(Direction.UP);
-            if (y > 0 && !board[x][y - 1].contains(CellModel.BLOCK))
-                directions.add(Direction.LEFT);
-            if (x + 1 < rows && !board[x + 1][y].contains(CellModel.BLOCK))
-                directions.add(Direction.DOWN);
-            if (y + 1 < columns && !board[x][y + 1].contains(CellModel.BLOCK))
-                directions.add(Direction.RIGHT);
-            Collections.shuffle(directions);
-            Direction direction = directions.get(0);
-            actor.setDirection(direction);
+        List<Direction> directions = new LinkedList<>();
+        for (Direction direction : Direction.values()) {
+            if (
+                    canMove(
+                            x,
+                            y,
+                            x + directionX[nextPos.get(direction)],
+                            y + directionY[nextPos.get(direction)],
+                            direction
+                    )
+            ) {
+                directions.add(direction);
+            }
         }
+        Collections.shuffle(directions);
+        Direction direction = directions.get(0);
+        ghost.setDirection(direction);
+        moveActor(ghost);
+    }
+
+    private boolean canMove(int oldX, int oldY, int x, int y, Direction direction) {
+        if (board[oldX][oldY].contains(CellModel.VERTICAL_DOOR) && (direction == Direction.UP || direction == Direction.DOWN)) {
+            return true;
+        }
+        if (board[oldX][oldY].contains(CellModel.HORIZONTAL_DOOR) && (direction == Direction.LEFT || direction == Direction.RIGHT)) {
+            return true;
+        }
+        if (board[oldX][oldY].contains(CellModel.VERTICAL_DOOR) && (direction == Direction.LEFT || direction == Direction.RIGHT)) {
+            return false;
+        }
+        if (board[oldX][oldY].contains(CellModel.HORIZONTAL_DOOR) && (direction == Direction.UP || direction == Direction.DOWN)) {
+            return false;
+        }
+        if (!(0 <= x && x < rows && 0 <= y && y < columns)) {
+            return false;
+        }
+        if (board[x][y].contains(CellModel.HORIZONTAL_DOOR) && (direction == Direction.UP || direction == Direction.DOWN)) {
+            return false;
+        }
+        if (board[x][y].contains(CellModel.VERTICAL_DOOR) && (direction == Direction.LEFT || direction == Direction.RIGHT)) {
+            return false;
+        }
+        return !board[x][y].contains(CellModel.BLOCK);
+    }
+
+    public List<Object> getCellElements(int rowIndex, int columnIndex) {
+        Point position = new Point(rowIndex, columnIndex);
+        List<Object> elements = new LinkedList<>(ghosts.stream().filter(ghost -> ghost.getPosition().equals(position)).toList());
+        if (pacman.getPosition() != null && pacman.getPosition().equals(position)) {
+            if (elements.size() > 0) {
+                if (gameStateListener != null) {
+                    gameStateListener.finishGame();
+                }
+            }
+            elements.add(pacman);
+        }
+        elements.add(getBoard()[rowIndex][columnIndex]);
+        return elements;
+    }
+
+    public void move(int keyCode) {
+        int x = pacman.getPosition().x;
+        int y = pacman.getPosition().y;
+        if (nextPosKeyboard.get(keyCode) != null) {
+            Direction direction = nextPosKeyboard.get(keyCode);
+            if (canMove(
+                    x,
+                    y,
+                    x + directionX[nextPos.get(direction)],
+                    y + directionY[nextPos.get(direction)],
+                    direction
+            )) {
+                pacman.setDirection(direction);
+                moveActor(pacman);
+            }
+        }
+    }
+
+    private void moveActor(ActorModel actor) {
         switch (actor.getDirection()) {
             case UP -> {
                 actor.goUp();
@@ -285,17 +367,31 @@ public class Repository {
                 actor.goLeft();
             }
         }
-    }
-
-    public List<Object> getCellElements(int rowIndex, int columnIndex) {
-        Point position = new Point(rowIndex, columnIndex);
-        List<Object> elements = new LinkedList<>(ghosts.stream().filter(ghost -> ghost.getPosition().equals(position)).toList());
-        if (pacman.getPosition() != null && pacman.getPosition().equals(position)) {
-            elements.add(pacman);
+        if (actor.getPosition().x == -1) {
+            int column = IntStream
+                    .range(0, columns - 1)
+                    .filter(i -> board[rows - 1][i].contains(CellModel.VERTICAL_DOOR))
+                    .toArray()[0];
+            actor.setPosition(new Point(rows - 1, column));
+        } else if (actor.getPosition().x == rows) {
+            int column = IntStream
+                    .range(0, columns - 1)
+                    .filter(i -> board[0][i].contains(CellModel.VERTICAL_DOOR))
+                    .toArray()[0];
+            actor.setPosition(new Point(0, column));
+        } else if (actor.getPosition().y == -1) {
+            int row = IntStream
+                    .range(0, rows - 1)
+                    .filter(i -> board[i][columns - 1].contains(CellModel.HORIZONTAL_DOOR))
+                    .toArray()[0];
+            actor.setPosition(new Point(row, columns - 1));
+        } else if (actor.getPosition().y == columns) {
+            int row = IntStream
+                    .range(0, rows - 1)
+                    .filter(i -> board[i][0].contains(CellModel.HORIZONTAL_DOOR))
+                    .toArray()[0];
+            actor.setPosition(new Point(row, 0));
         }
-        if (elements.isEmpty()) {
-            elements.add(getBoard()[rowIndex][columnIndex]);
-        }
-        return elements;
+        positionListener.dataChanged();
     }
 }

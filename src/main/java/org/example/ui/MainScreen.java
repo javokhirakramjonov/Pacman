@@ -34,7 +34,8 @@ public class MainScreen extends JFrame {
                 imageLabel.setBounds(new Rectangle(screenSize));
                 mainPane.add(imageLabel, JLayeredPane.DEFAULT_LAYER);
             }
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         JPanel buttonPanel = new JPanel(new GridLayout(0, 1, 0, 40));
@@ -42,7 +43,7 @@ public class MainScreen extends JFrame {
 
         buttonPanel.add(createButton("New Game", () -> {
             setVisible(false);
-            new GameScreen(20, 20).start();
+            new GameScreen(10, 10).start();
             return null;
         }));
         buttonPanel.add(createButton("High Scores", () -> {

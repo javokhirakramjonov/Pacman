@@ -1,11 +1,9 @@
 package org.example.ui;
 
 import org.example.controller.GameScreenController;
-import org.example.domain.model.GhostModel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
 
 public class GameScreen extends JFrame {
 
@@ -43,14 +41,8 @@ public class GameScreen extends JFrame {
 
         add(board);
 
-        setFocusable(true);
-        requestFocus();
         setLocationRelativeTo(null);
         setResizable(false);
         setVisible(true);
-    }
-
-    public void drawGhosts(List<GhostModel> data) {
-
     }
 }

@@ -24,7 +24,6 @@ public class MyBoardTable extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        fireTableCellUpdated(rowIndex, columnIndex);
         return repository.getCellElements(rowIndex, columnIndex);
     }
 }

@@ -3,7 +3,6 @@ package org.example.domain.model;
 import org.example.domain.util.Direction;
 import org.example.domain.util.Move;
 
-import javax.swing.*;
 import java.awt.*;
 
 public abstract class ActorModel implements Move {
@@ -13,7 +12,7 @@ public abstract class ActorModel implements Move {
     private int speed;
     private Direction direction;
     private boolean isLive;
-    private JComponent image;
+    private Image image;
 
     public ActorModel(int size) {
         this.cellSize = size;
@@ -55,11 +54,11 @@ public abstract class ActorModel implements Move {
         isLive = live;
     }
 
-    public JComponent getImage() {
+    public Image getImage() {
         return image;
     }
 
-    public void setImage(JComponent image) {
+    public void setImage(Image image) {
         this.image = image;
     }
 

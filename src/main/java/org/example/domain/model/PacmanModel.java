@@ -12,7 +12,7 @@ public class PacmanModel extends ActorModel {
     public PacmanModel(int cellSize) {
         super(cellSize);
         eyeDiameter = cellSize / 4;
-        state = State.STAY_RIGHT;
+        setState(State.STAY_RIGHT);
     }
 
     public void setState(State state) {

@@ -2,6 +2,8 @@ package org.example.ui;
 
 import org.example.domain.model.ActorModel;
 import org.example.domain.model.CellModel;
+import org.example.domain.model.GhostModel;
+import org.example.domain.model.PacmanModel;
 
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
@@ -41,6 +43,8 @@ public class MyBoardRenderer extends JPanel implements TableCellRenderer {
             if (element instanceof List cell) {
                 drawBoardElements((List<CellModel>) cell, g);
             }
+        }
+        for (Object element : cellData) {
             if (element instanceof ActorModel actor) {
                 drawActor(actor, g);
             }
@@ -48,7 +52,12 @@ public class MyBoardRenderer extends JPanel implements TableCellRenderer {
     }
 
     private void drawActor(ActorModel actor, Graphics g) {
-        add(actor.getImage());
+        if (actor instanceof GhostModel ghost) {
+            g.drawImage(ghost.getImage(), 0, 0, null);
+        }
+        if (actor instanceof PacmanModel pacman) {
+            pacman.drawState(g);
+        }
     }
 
     private void drawBoardElements(List<CellModel> cellData, Graphics g) {
