@@ -42,12 +42,15 @@ public class MainScreen extends JFrame {
         buttonPanel.setOpaque(false);
 
         buttonPanel.add(createButton("New Game", () -> {
+            removeAll();
             setVisible(false);
-            new GameScreen(10, 10).start();
+            new GameScreen(20, 20).start();
             return null;
         }));
         buttonPanel.add(createButton("High Scores", () -> {
-            //TODO
+            removeAll();
+            setVisible(false);
+            new ScoresScreen().start();
             return null;
         }));
         buttonPanel.add(createButton("Exit", () -> {

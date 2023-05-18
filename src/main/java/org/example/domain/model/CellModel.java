@@ -3,7 +3,6 @@ package org.example.domain.model;
 public enum CellModel {
     FOOD,
     BLOCK,
-    EMPTY,
     HORIZONTAL_DOOR,
     VERTICAL_DOOR,
     LEFT_TOP_BORDER,

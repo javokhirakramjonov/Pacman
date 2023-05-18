@@ -8,6 +8,7 @@ import java.net.URL;
 public class GhostModel extends ActorModel {
     public GhostModel(int size) {
         super(size);
+        setSpeed(300);
         try {
             URL imageUrl = getClass().getClassLoader().getResource("ghost.png");
             if (imageUrl != null) {

@@ -5,9 +5,11 @@ import org.example.domain.model.CellModel;
 import org.example.domain.model.GhostModel;
 import org.example.domain.model.PacmanModel;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.io.IOException;
 import java.util.List;
 
 public class MyBoardRenderer extends JPanel implements TableCellRenderer {
@@ -15,6 +17,7 @@ public class MyBoardRenderer extends JPanel implements TableCellRenderer {
     private final int cellSize;
     private final int borderSize;
     List<Object> cellData;
+    private Image image;
 
     public MyBoardRenderer(int cellSize) {
         setLayout(new OverlayLayout(this));
@@ -22,6 +25,14 @@ public class MyBoardRenderer extends JPanel implements TableCellRenderer {
         borderSize = 4;
         setOpaque(false);
         setSize(new Dimension(cellSize, cellSize));
+        try {
+            image = ImageIO.read(getClass().getClassLoader().getResource("floor.jpg"));
+            if (image != null) {
+                image = image.getScaledInstance(cellSize, cellSize, Image.SCALE_DEFAULT);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -39,6 +50,9 @@ public class MyBoardRenderer extends JPanel implements TableCellRenderer {
     @Override
     protected void paintComponent(Graphics g) {
         removeAll();
+        if (image != null) {
+            g.drawImage(image, 0, 0, null);
+        }
         for (Object element : cellData) {
             if (element instanceof List cell) {
                 drawBoardElements((List<CellModel>) cell, g);
@@ -62,14 +76,14 @@ public class MyBoardRenderer extends JPanel implements TableCellRenderer {
 
     private void drawBoardElements(List<CellModel> cellData, Graphics g) {
         for (CellModel cell : cellData) {
+            g.setColor(Color.BLACK);
             switch (cell) {
                 case FOOD -> {
+                    g.setColor(new Color(0, 255, 140, 255));
                     g.fillOval(cellSize / 4, cellSize / 4, cellSize / 2, cellSize / 2);
                 }
                 case BLOCK -> {
                     g.fillRect(0, 0, cellSize, cellSize);
-                }
-                case EMPTY -> {
                 }
                 case HORIZONTAL_DOOR -> {
                     g.fillRect(0, 0, cellSize, borderSize);

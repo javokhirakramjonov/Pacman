@@ -1,6 +1,6 @@
 package org.example.ui;
 
-import org.example.domain.model.Repository;
+import org.example.domain.repository.Repository;
 
 import javax.swing.table.AbstractTableModel;
 

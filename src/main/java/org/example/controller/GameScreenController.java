@@ -1,6 +1,8 @@
 package org.example.controller;
 
-import org.example.domain.model.Repository;
+import org.example.domain.model.ScoreModel;
+import org.example.domain.repository.Repository;
+import org.example.domain.repository.ScoreManager;
 import org.example.domain.util.GameStateListener;
 import org.example.domain.util.PositionListener;
 import org.example.ui.GameScreen;
@@ -12,7 +14,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 
-public class GameScreenController implements PositionListener, KeyEventDispatcher, GameStateListener {
+public class GameScreenController implements
+        PositionListener,
+        KeyEventDispatcher,
+        GameStateListener {
 
     private final Repository repository;
     private final GameScreen gameScreen;
@@ -41,9 +46,8 @@ public class GameScreenController implements PositionListener, KeyEventDispatche
 
     private void keyPressed(KeyEvent e) {
         if (e.isControlDown() && e.isShiftDown() && e.getKeyCode() == KeyEvent.VK_Q) {
-            gameScreen.setVisible(false);
             KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(this);
-            new MainScreen().start();
+            repository.stop();
             return;
         }
         repository.move(e.getKeyCode());
@@ -63,8 +67,30 @@ public class GameScreenController implements PositionListener, KeyEventDispatche
     }
 
     @Override
-    public void finishGame() {
-        //TODO
-        System.out.println("Game over");
+    public void setLifeCount(int count) {
+        gameScreen.drawHearts(count);
+    }
+
+    @Override
+    public void setScore(int score) {
+        gameScreen.drawScore(score);
+    }
+
+    @Override
+    public void finishGame(int score, int time) {
+        if (score < 10) {
+            endGame();
+        } else {
+            String name = gameScreen.showDialogAndGetName();
+            ScoreManager manager = new ScoreManager();
+            manager.addNewScore(new ScoreModel(name, score, time));
+            endGame();
+        }
+    }
+
+    private void endGame() {
+        gameScreen.removeAll();
+        gameScreen.setVisible(false);
+        new MainScreen().start();
     }
 }

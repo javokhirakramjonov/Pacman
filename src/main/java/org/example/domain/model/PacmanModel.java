@@ -13,6 +13,7 @@ public class PacmanModel extends ActorModel {
         super(cellSize);
         eyeDiameter = cellSize / 4;
         setState(State.STAY_RIGHT);
+        setSpeed(150);
     }
 
     public void setState(State state) {
@@ -53,27 +54,61 @@ public class PacmanModel extends ActorModel {
             }
             case EATING_LEFT -> {
                 g.setColor(Color.YELLOW);
-                g.fillArc(0, 0, cellSize, cellSize, -150, 150);
+                g.fillArc(0, 0, cellSize, cellSize, 210, 300);
                 g.setColor(Color.BLACK);
                 g.fillOval(cellSize / 2 - eyeDiameter / 2, cellSize / 4 - eyeDiameter / 2, eyeDiameter, eyeDiameter);
             }
             case EATING_TOP -> {
                 g.setColor(Color.YELLOW);
-                g.fillArc(0, 0, cellSize, cellSize, -240, 60);
+                g.fillArc(0, 0, cellSize, cellSize, 120, 300);
                 g.setColor(Color.BLACK);
                 g.fillOval(cellSize * 3 / 4 - eyeDiameter / 2, cellSize / 2 - eyeDiameter / 2, eyeDiameter, eyeDiameter);
             }
             case EATING_RIGHT -> {
                 g.setColor(Color.YELLOW);
-                g.fillArc(0, 0, cellSize, cellSize, 30, 330);
+                g.fillArc(0, 0, cellSize, cellSize, 30, 300);
                 g.setColor(Color.BLACK);
                 g.fillOval(cellSize / 2 - eyeDiameter / 2, cellSize / 4 - eyeDiameter / 2, eyeDiameter, eyeDiameter);
             }
             case EATING_BOTTOM -> {
                 g.setColor(Color.YELLOW);
-                g.fillArc(0, 0, cellSize, cellSize, -60, 240);
+                g.fillArc(0, 0, cellSize, cellSize, 300, 300);
                 g.setColor(Color.BLACK);
                 g.fillOval(cellSize / 4 - eyeDiameter / 2, cellSize / 2 - eyeDiameter / 2, eyeDiameter, eyeDiameter);
+            }
+        }
+    }
+
+    public void setEating(boolean contains) {
+        if (contains) {
+            switch (getDirection()) {
+                case UP -> {
+                    setState(State.EATING_TOP);
+                }
+                case RIGHT -> {
+                    setState(State.EATING_RIGHT);
+                }
+                case DOWN -> {
+                    setState(State.EATING_BOTTOM);
+                }
+                case LEFT -> {
+                    setState(State.EATING_LEFT);
+                }
+            }
+        } else {
+            switch (getDirection()) {
+                case UP -> {
+                    setState(State.STAY_TOP);
+                }
+                case RIGHT -> {
+                    setState(State.STAY_RIGHT);
+                }
+                case DOWN -> {
+                    setState(State.STAY_BOTTOM);
+                }
+                case LEFT -> {
+                    setState(State.STAY_LEFT);
+                }
             }
         }
     }
