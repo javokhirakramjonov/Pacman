@@ -316,8 +316,8 @@ public class Repository {
         if (pacman.getPosition() != null && pacman.getPosition().equals(position)) {
             if (elements.size() > 0 && canDeath) {
                 setLifeRefresh();
-                if (lifeCount > 0) {
-                    gameStateListener.setLifeCount(--lifeCount);
+                if (--lifeCount > 0) {
+                    gameStateListener.setLifeCount(lifeCount);
                 } else {
                     stop();
                 }
@@ -383,16 +383,16 @@ public class Repository {
             }
         }
         if (actor.getPosition().x == -1) {
-            int column = IntStream.range(0, columns - 1).filter(i -> board[rows - 1][i].contains(CellModel.VERTICAL_DOOR)).toArray()[0];
+            int column = IntStream.range(0, columns).filter(i -> board[rows - 1][i].contains(CellModel.VERTICAL_DOOR)).toArray()[0];
             actor.setPosition(new Point(rows - 1, column));
         } else if (actor.getPosition().x == rows) {
-            int column = IntStream.range(0, columns - 1).filter(i -> board[0][i].contains(CellModel.VERTICAL_DOOR)).toArray()[0];
+            int column = IntStream.range(0, columns).filter(i -> board[0][i].contains(CellModel.VERTICAL_DOOR)).toArray()[0];
             actor.setPosition(new Point(0, column));
         } else if (actor.getPosition().y == -1) {
-            int row = IntStream.range(0, rows - 1).filter(i -> board[i][columns - 1].contains(CellModel.HORIZONTAL_DOOR)).toArray()[0];
-            actor.setPosition(new Point(row, columns - 1));
+            int row = IntStream.range(0, rows).filter(i -> board[i][columns - 1].contains(CellModel.HORIZONTAL_DOOR)).toArray()[0];
+            actor.setPosition(new Point(row, columns));
         } else if (actor.getPosition().y == columns) {
-            int row = IntStream.range(0, rows - 1).filter(i -> board[i][0].contains(CellModel.HORIZONTAL_DOOR)).toArray()[0];
+            int row = IntStream.range(0, rows).filter(i -> board[i][0].contains(CellModel.HORIZONTAL_DOOR)).toArray()[0];
             actor.setPosition(new Point(row, 0));
         }
         positionListener.dataChanged();
@@ -400,6 +400,7 @@ public class Repository {
 
     public void stop() {
         endTime = Calendar.getInstance().get(Calendar.SECOND);
+        startTime = Math.min(startTime, endTime);
         isPlaying = false;
         if (pacmanThread != null) pacmanThread.interrupt();
         if (ghostThread != null) ghostThread.interrupt();

@@ -42,14 +42,43 @@ public class MainScreen extends JFrame {
         buttonPanel.setOpaque(false);
 
         buttonPanel.add(createButton("New Game", () -> {
-            removeAll();
-            setVisible(false);
-            new GameScreen(20, 20).start();
+            JFrame dialog = new JFrame();
+            TextField textField1 = new TextField("20");
+            TextField textField2 = new TextField("20");
+            JButton button = createButton("START", () -> {
+                try {
+                    int num1 = Integer.parseInt(textField1.getText());
+                    int num2 = Integer.parseInt(textField2.getText());
+                    if (Math.min(num1, num2) < 10) {
+                        textField1.setText("Invalid data");
+                        textField2.setText("Invalid data");
+                    } else {
+                        dialog.dispose();
+                        dispose();
+                        new GameScreen(num1, num2).start();
+                    }
+                } catch (Exception e) {
+                    textField1.setText("Invalid data");
+                    textField2.setText("Invalid data");
+                }
+                return null;
+            });
+
+            dialog.setLayout(new GridLayout(3, 2, 0, 10));
+            dialog.add(new JLabel("Number of columns"));
+            dialog.add(textField1);
+            dialog.add(new JLabel("Number of rows"));
+            dialog.add(textField2);
+            dialog.add(button);
+            dialog.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            dialog.setSize(new Dimension(500, 200));
+            dialog.setLocationRelativeTo(null);
+            dialog.setResizable(false);
+            dialog.setVisible(true);
             return null;
         }));
         buttonPanel.add(createButton("High Scores", () -> {
-            removeAll();
-            setVisible(false);
+            dispose();
             new ScoresScreen().start();
             return null;
         }));
@@ -86,5 +115,4 @@ public class MainScreen extends JFrame {
         button.addActionListener(event -> action.get());
         return button;
     }
-
 }

@@ -40,4 +40,15 @@ public class ScoreManager {
             error.printStackTrace();
         }
     }
+
+    public void clearList() {
+        try (
+                FileOutputStream f = new FileOutputStream(SCORE_FILE_NAME);
+                ObjectOutputStream s = new ObjectOutputStream(f)
+        ) {
+            s.writeObject(null);
+        } catch (IOException error) {
+            error.printStackTrace();
+        }
+    }
 }

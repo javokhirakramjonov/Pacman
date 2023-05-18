@@ -1,10 +1,14 @@
 package org.example.ui;
 
 import org.example.controller.GameScreenController;
+import org.example.domain.model.ScoreModel;
+import org.example.domain.repository.ScoreManager;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.URL;
 
@@ -42,7 +46,12 @@ public class GameScreen extends JFrame {
     }
 
     public void start() {
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                controller.stopGame();
+            }
+        });
         setLayout(new GridBagLayout());
 
         URL imageUrl = getClass().getClassLoader().getResource("heart.png");
@@ -130,7 +139,15 @@ public class GameScreen extends JFrame {
         scoreContainer.repaint();
     }
 
-    public String showDialogAndGetName() {
-        return JOptionPane.showInputDialog("Enter your name");
+    public void finishGame(int score, int inSecond) {
+        dispose();
+        SwingUtilities.invokeLater(() -> {
+            if (score > 10) {
+                String name = JOptionPane.showInputDialog(null, "Enter your name");
+                ScoreManager manager = new ScoreManager();
+                manager.addNewScore(new ScoreModel(name, score, inSecond));
+            }
+            new MainScreen().start();
+        });
     }
 }

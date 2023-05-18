@@ -1,12 +1,9 @@
 package org.example.controller;
 
-import org.example.domain.model.ScoreModel;
 import org.example.domain.repository.Repository;
-import org.example.domain.repository.ScoreManager;
 import org.example.domain.util.GameStateListener;
 import org.example.domain.util.PositionListener;
 import org.example.ui.GameScreen;
-import org.example.ui.MainScreen;
 import org.example.ui.MyBoardRenderer;
 import org.example.ui.MyBoardTable;
 
@@ -46,8 +43,7 @@ public class GameScreenController implements
 
     private void keyPressed(KeyEvent e) {
         if (e.isControlDown() && e.isShiftDown() && e.getKeyCode() == KeyEvent.VK_Q) {
-            KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(this);
-            repository.stop();
+            stopGame();
             return;
         }
         repository.move(e.getKeyCode());
@@ -78,19 +74,11 @@ public class GameScreenController implements
 
     @Override
     public void finishGame(int score, int time) {
-        if (score < 10) {
-            endGame();
-        } else {
-            String name = gameScreen.showDialogAndGetName();
-            ScoreManager manager = new ScoreManager();
-            manager.addNewScore(new ScoreModel(name, score, time));
-            endGame();
-        }
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(this);
+        gameScreen.finishGame(score, time);
     }
 
-    private void endGame() {
-        gameScreen.removeAll();
-        gameScreen.setVisible(false);
-        new MainScreen().start();
+    public void stopGame() {
+        repository.stop();
     }
 }

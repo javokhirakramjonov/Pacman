@@ -8,6 +8,9 @@ public class ScoreModel implements Serializable {
     private final int inSecond;
 
     public ScoreModel(String name, int score, int inSecond) {
+        if (name == null || name.isBlank() || name.isEmpty()) {
+            name = "Unknown";
+        }
         this.name = name;
         this.score = score;
         this.inSecond = inSecond;

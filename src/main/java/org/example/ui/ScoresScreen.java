@@ -1,12 +1,12 @@
 package org.example.ui;
 
 import org.example.controller.HighScoresController;
-import org.example.domain.model.ScoreModel;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.util.List;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class ScoresScreen extends JFrame {
 
@@ -18,15 +18,20 @@ public class ScoresScreen extends JFrame {
     }
 
     public void start() {
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        List<ScoreModel> scores = controller.getHighScores();
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                dispose();
+                new MainScreen().start();
+            }
+        });
 
         DefaultTableModel scoreTableModel = new DefaultTableModel();
         scoreTableModel.addColumn("Name");
         scoreTableModel.addColumn("Score");
         scoreTableModel.addColumn("Time");
 
-        scores.forEach(scoreModel ->
+        controller.getHighScores().forEach(scoreModel ->
                 scoreTableModel.addRow(
                         new Object[]{
                                 scoreModel.getName(),
@@ -41,7 +46,17 @@ public class ScoresScreen extends JFrame {
         JScrollPane scoresPane = new JScrollPane(table);
         scoresPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
-        add(scoresPane);
+        JButton clearButton = new JButton("Clear list");
+        clearButton.addActionListener(e -> {
+            controller.clear();
+            scoreTableModel.setRowCount(0);
+            scoreTableModel.fireTableDataChanged();
+        });
+
+        setLayout(new BorderLayout());
+
+        add(clearButton, BorderLayout.NORTH);
+        add(scoresPane, BorderLayout.CENTER);
 
         setSize(new Dimension(500, 500));
         setLocationRelativeTo(null);

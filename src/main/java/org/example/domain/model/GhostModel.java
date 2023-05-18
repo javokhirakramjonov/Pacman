@@ -14,9 +14,6 @@ public class GhostModel extends ActorModel {
             if (imageUrl != null) {
                 BufferedImage image = ImageIO.read(imageUrl);
                 Image newImage = image.getScaledInstance(size, size, Image.SCALE_DEFAULT);
-//                JLabel imageLabel = new JLabel(new ImageIcon(newImage));
-//                imageLabel.setSize(new Dimension(size, size));
-//                imageLabel.setOpaque(false);
                 setImage(newImage);
             }
         } catch (Exception exception) {

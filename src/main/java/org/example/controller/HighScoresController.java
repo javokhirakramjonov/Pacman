@@ -16,4 +16,8 @@ public class HighScoresController {
     public List<ScoreModel> getHighScores() {
         return manager.getScores();
     }
+
+    public void clear() {
+        manager.clearList();
+    }
 }
